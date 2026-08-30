@@ -13,9 +13,26 @@ Commands:
 import logging
 import os
 import time
+import threading
+from flask import Flask
 
 import discord
 from discord.ext import commands
+
+# Initialize Flask app for Render health checks
+app = Flask('')
+
+@app.route('/')
+def health_check():
+    return "Bot is active", 200
+
+def run_web_server():
+    # Render automatically provides a PORT environment variable (defaults to 8080 if missing)
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)
+
+# Start web server in a daemon thread so it doesn't block discord.py
+threading.Thread(target=run_web_server, daemon=True).start()
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
